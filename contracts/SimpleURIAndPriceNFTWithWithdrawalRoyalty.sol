@@ -5,9 +5,9 @@ import "./AbstractURIMint.sol";
 import "./AbstractNodPriceAndWithdrawal.sol";
 
 contract SimpleURIAndPriceNFTWithWithdrawalRoyalty is AbstractURIMint, AbstractNodPriceAndWithdrawal {
-    constructor(string memory name, string memory symbol, string memory baseURI, uint256 _priceInWei)
+    constructor(string memory name, string memory symbol, string memory baseURI, uint256 priceInWei)
         AbstractURIMint(name, symbol, baseURI)
-        AbstractNodPriceAndWithdrawal(_priceInWei)
+        AbstractNodPriceAndWithdrawal(priceInWei)
     {}
 
     function mint(string memory tokenURI) public payable returns (uint256) {
