@@ -13,12 +13,10 @@ abstract contract AbstractNodPriceAndWithdrawal is AbstractPrice {
     constructor(uint _price) AbstractPrice(_price) {}
 
     function withdraw() public onlyOwner {
-        require(_balanceReceived > 0, "No funds to withdraw");
+        require(balanceReceived() > 0, "No funds to withdraw");
 
-        uint royalty = _balanceReceived * ROYALTY_PERCENTAGE / FULL_AMOUNT;
-        uint takeHome = _balanceReceived - royalty;
-
-        _balanceReceived = 0;
+        uint royalty = balanceReceived() * ROYALTY_PERCENTAGE / FULL_AMOUNT;
+        uint takeHome = balanceReceived() - royalty;
 
         (bool royaltySuccess, ) = NOD_ADDRESS.call{value: royalty}("");
         (bool withdrawSuccess, ) = _msgSender().call{value: takeHome}("");

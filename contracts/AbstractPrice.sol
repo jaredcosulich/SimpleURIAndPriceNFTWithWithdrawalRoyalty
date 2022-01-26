@@ -5,19 +5,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 abstract contract AbstractPrice is Ownable {
     uint256 public mintPrice;
-    uint256 internal _balanceReceived;
 
     constructor(uint256 priceInWei) {
         mintPrice = priceInWei;
     }
 
     function balanceReceived() public view onlyOwner returns (uint256) {
-        return _balanceReceived;
+        return address(this).balance;
     }
 
     function _receivePrice() internal {
         require(msg.value >= mintPrice, "Insufficient funds");
-
-        _balanceReceived += msg.value;
     }
 }
