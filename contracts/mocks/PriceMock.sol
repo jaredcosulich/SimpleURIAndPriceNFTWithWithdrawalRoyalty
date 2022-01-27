@@ -6,7 +6,5 @@ import "../AbstractPrice.sol";
 contract PriceMock is AbstractPrice {
     constructor(uint256 _price) AbstractPrice(_price) {}
 
-    function mint() public payable {
-        _receivePrice();
-    }
+    function mint() requirePrice public payable {}
 }

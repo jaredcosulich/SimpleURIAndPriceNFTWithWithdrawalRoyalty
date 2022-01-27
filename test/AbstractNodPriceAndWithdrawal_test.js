@@ -5,15 +5,15 @@ const { balance, expectEvent, expectRevert } = require('@openzeppelin/test-helpe
 
 const NodPriceAndWithdrawalMock = artifacts.require('NodPriceAndWithdrawalMock');
 
-contract('AbstractNodPriceAndWithdrawal', ([ owner, other, other2 ]) => {
+contract('AbstractNodPriceAndWithdrawal', ([ owner, nod, other, other2 ]) => {
   const price = constants.WeiPerEther.div(10) // 0.1 ETH
   const royaltyPercentage = 3;
-  const nodAddress = "0xEFE523bB4b55cc316A3fe528ab0E8987Eaa3D97e";
     
   let contract, royalty, takeHome;
   beforeEach(async () => {
     contract = await NodPriceAndWithdrawalMock.new(
       price, 
+      nod,
       { from: owner }
     );
     contract.mint({ from: other, value: price.toString() });
@@ -25,7 +25,7 @@ contract('AbstractNodPriceAndWithdrawal', ([ owner, other, other2 ]) => {
   });
 
   it('sends the royalty percentage to the NodLabs account on withdrawal', async () => {
-    const nodBalanceTracker = await balance.tracker(nodAddress, 'wei');
+    const nodBalanceTracker = await balance.tracker(nod, 'wei');
     const ownerBalanceTracker = await balance.tracker(owner, 'wei');
 
     await contract.withdraw({ from: owner });
@@ -39,6 +39,14 @@ contract('AbstractNodPriceAndWithdrawal', ([ owner, other, other2 ]) => {
     expect(royaltyChange.fees).to.bignumber.equal("0");
   })
 
+  it("doesn't allow a withdrawal if there are no funds left", async () => {
+    await contract.withdraw({ from: owner });
+    await expectRevert(
+      contract.withdraw({ from: owner }),
+      "No funds to withdraw",
+    ); 
+  })
+
   it("emits events recording the withdrawal and royalty payment", async () => {
     const receipt = await contract.withdraw({ from: owner });
     expectEvent(receipt, "Withdrawal", { 
@@ -46,7 +54,7 @@ contract('AbstractNodPriceAndWithdrawal', ([ owner, other, other2 ]) => {
       value: takeHome.toString()
     })
     expectEvent(receipt, "Withdrawal", { 
-      recipient: nodAddress,
+      recipient: nod,
       value: royalty.toString()
     })
   })
@@ -56,5 +64,20 @@ contract('AbstractNodPriceAndWithdrawal', ([ owner, other, other2 ]) => {
       contract.withdraw({ from: other }),
       "Ownable: caller is not the owner",
     );      
+  })
+
+  it('should not allow an address that is not the nod address to update the nod payout address', async () => {
+    await expectRevert(
+      contract.updateNodPayoutAddress(other, { from: owner }),
+      "Access denied to update nod payout address",
+    );
+  })
+
+  it('should allow the Nod address to update the nod payout address', async () => {
+    contract.updateNodPayoutAddress(other, { from: nod });
+    
+    const payoutAddress = await contract.nodPayoutAddress();
+
+    expect(payoutAddress).equal(other);
   })
 })

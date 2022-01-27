@@ -10,8 +10,7 @@ contract SimpleURIAndPriceNFTWithWithdrawalRoyalty is AbstractURIMint, AbstractN
         AbstractNodPriceAndWithdrawal(priceInWei)
     {}
 
-    function mint(string memory tokenURI) public payable returns (uint256) {
-         _receivePrice();
+    function mint(string memory tokenURI) requirePrice public payable returns (uint256) {
         return _mintNextToken(tokenURI);
     }
 }

@@ -10,11 +10,16 @@ abstract contract AbstractPrice is Ownable {
         mintPrice = priceInWei;
     }
 
+    modifier requirePrice() {
+      require(msg.value >= mintPrice, "Insufficient funds");
+      _;
+    }
+
     function balanceReceived() public view onlyOwner returns (uint256) {
         return address(this).balance;
     }
 
-    function _receivePrice() internal {
-        require(msg.value >= mintPrice, "Insufficient funds");
+    function setMintPrice(uint256 priceInWei) public onlyOwner {
+        mintPrice = priceInWei;
     }
 }
