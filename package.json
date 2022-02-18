@@ -16,7 +16,6 @@
     "testgas": "REPORT_GAS=true npx hardhat test"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.1",
-    "secp256k1": "^4.0.3"
+    "@openzeppelin/contracts": "^4.4.1"
   }
 }
